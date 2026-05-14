@@ -26,7 +26,7 @@ if (session) {
   renderSidebar(session.profile);
   setupTabs();
   setupModal();
-  await ;
+  await;
 }
 
 function setupTabs() {
