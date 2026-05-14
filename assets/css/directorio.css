@@ -45,3 +45,29 @@
 .bike-row span {
   color: var(--white-soft);
 }
+.bikes-preview {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.bike-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--red-main);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: #000;
+}
+
+.bike-row strong {
+  color: var(--white-main);
+  display: block;
+}
+
+.bike-row span {
+  color: var(--white-soft);
+  font-size: 13px;
+}
