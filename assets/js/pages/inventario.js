@@ -55,10 +55,9 @@ async function loadInventory() {
 
 async function loadApprovedProducts() {
   const q = query(
-    collection(db, "inventory"),
-    where("approved", "==", true),
-    orderBy("name", "asc")
-  );
+  collection(db, "inventory"),
+  where("pendingApproval", "==", true)
+);
 
   const snapshot = await getDocs(q);
 
