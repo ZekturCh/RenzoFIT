@@ -1,46 +1,40 @@
-/* assets/css/pdf.css */
+// assets/js/pages/login.js
 
-.pdf-preview {
-  width: 794px;
-  min-height: 1123px;
-  background: #ffffff;
-  color: #000000;
-  padding: 60px;
-  font-family: Arial, Helvetica, sans-serif;
-}
+import { loginUser } from "../auth.js";
+import { ROLES } from "../constants.js";
 
-.pdf-preview h1,
-.pdf-preview h2,
-.pdf-preview h3,
-.pdf-preview p {
-  color: #000000;
-}
+const loginForm = document.querySelector("#loginForm");
+const loginError = document.querySelector("#loginError");
 
-.pdf-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-.pdf-logo {
-  width: 220px;
-}
+  loginError.textContent = "";
 
-.pdf-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 30px;
-}
+  const email = document.querySelector("#email").value.trim().toLowerCase();
+  const password = document.querySelector("#password").value.trim();
 
-.pdf-table th,
-.pdf-table td {
-  border: 1px solid #000;
-  padding: 8px;
-  color: #000;
-}
+  if (!email || !password) {
+    loginError.textContent = "Ingresa correo y contraseña.";
+    return;
+  }
 
-.pdf-total {
-  text-align: right;
-  font-weight: 900;
-  margin-top: 20px;
-}
+  try {
+    const session = await loginUser(email, password);
+
+    if (session.profile.role === ROLES.ADMIN) {
+      window.location.href = "./index.html";
+      return;
+    }
+
+    if (session.profile.role === ROLES.BASIC) {
+      window.location.href = "./servicios-activos.html";
+      return;
+    }
+
+    loginError.textContent = "Rol no reconocido.";
+  } catch (error) {
+    console.error(error);
+    loginError.textContent = "Correo, contraseña o usuario inválido.";
+  }
+});
