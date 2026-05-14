@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Directorio | Tesen Factory Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+  <link rel="stylesheet" href="./assets/css/directorio.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Directorio</h1>
+        <p>Clientes, motos e historial</p>
+      </div>
+
+      <button id="openClientModalBtn" class="btn-primary">
+        Nuevo cliente
+      </button>
+    </header>
+
+    <section class="filters-bar">
+      <input type="text" id="directorySearch" placeholder="Buscar por nombre, DNI, teléfono o placa" />
+    </section>
+
+    <section id="clientsList" class="cards-list">
+      <p class="empty-message">Cargando clientes...</p>
+    </section>
+  </main>
+
+  <div id="clientModal" class="modal hidden">
+    <div class="modal-content large-modal">
+      <button id="closeClientModal" class="modal-close">×</button>
+
+      <h2>Cliente</h2>
+
+      <section class="form-panel">
+        <h3>Datos del cliente</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombres</label>
+            <input type="text" id="dirClientFirstName" />
+          </div>
+
+          <div class="form-group">
+            <label>Apellidos</label>
+            <input type="text" id="dirClientLastName" />
+          </div>
+
+          <div class="form-group">
+            <label>Tipo documento</label>
+            <select id="dirDocumentType">
+              <option value="DNI">DNI</option>
+              <option value="CE">CE</option>
+              <option value="RUC">RUC</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nro. documento</label>
+            <input type="text" id="dirDocumentNumber" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="dirPhone" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <h3>Moto</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Marca</label>
+            <input type="text" id="dirBikeBrand" />
+          </div>
+
+          <div class="form-group">
+            <label>Modelo</label>
+            <input type="text" id="dirBikeModel" />
+          </div>
+
+          <div class="form-group">
+            <label>Kilometraje</label>
+            <input type="number" id="dirBikeMileage" />
+          </div>
+
+          <div class="form-group">
+            <label>Placa</label>
+            <input type="text" id="dirBikePlate" />
+          </div>
+
+          <div class="form-group">
+            <label>Color</label>
+            <input type="text" id="dirBikeColor" />
+          </div>
+
+          <div class="form-group">
+            <label>Nro. VIN</label>
+            <input type="text" id="dirBikeVin" />
+          </div>
+
+          <div class="form-group">
+            <label>Año</label>
+            <input type="number" id="dirBikeYear" />
+          </div>
+
+          <div class="form-group">
+            <label>Transmisión</label>
+            <input type="text" id="dirBikeTransmission" />
+          </div>
+        </div>
+      </section>
+
+      <button id="saveClientBtn" class="btn-primary">
+        Guardar cliente
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/pages/directorio.js"></script>
+</body>
+</html>
