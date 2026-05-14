@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Registrar Cotización | Tesen Factory Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+  <link rel="stylesheet" href="./assets/css/cotizar.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Registrar Cotización</h1>
+        <p>Crear orden inicial para cliente y moto</p>
+      </div>
+    </header>
+
+    <form id="quoteForm" class="form-layout">
+
+      <section class="form-panel">
+        <h2>1. Cliente</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Buscar cliente</label>
+            <input type="text" id="clientSearch" placeholder="Nombre, DNI o teléfono" />
+          </div>
+
+          <div class="form-group">
+            <label>Cliente existente</label>
+            <select id="clientSelect">
+              <option value="">Seleccionar cliente</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombres</label>
+            <input type="text" id="clientFirstName" />
+          </div>
+
+          <div class="form-group">
+            <label>Apellidos</label>
+            <input type="text" id="clientLastName" />
+          </div>
+
+          <div class="form-group">
+            <label>Tipo de documento</label>
+            <select id="documentType">
+              <option value="DNI">DNI</option>
+              <option value="CE">CE</option>
+              <option value="RUC">RUC</option>
+              <option value="OTRO">Otro</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nro. documento</label>
+            <input type="text" id="documentNumber" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" id="phone" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <h2>2. Moto</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Moto existente</label>
+            <select id="bikeSelect">
+              <option value="">Seleccionar moto</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Marca</label>
+            <input type="text" id="bikeBrand" />
+          </div>
+
+          <div class="form-group">
+            <label>Modelo</label>
+            <input type="text" id="bikeModel" />
+          </div>
+
+          <div class="form-group">
+            <label>Kilometraje</label>
+            <input type="number" id="bikeMileage" />
+          </div>
+
+          <div class="form-group">
+            <label>Placa</label>
+            <input type="text" id="bikePlate" />
+          </div>
+
+          <div class="form-group">
+            <label>Color</label>
+            <input type="text" id="bikeColor" />
+          </div>
+
+          <div class="form-group">
+            <label>Nro. VIN</label>
+            <input type="text" id="bikeVin" />
+          </div>
+
+          <div class="form-group">
+            <label>Año</label>
+            <input type="number" id="bikeYear" />
+          </div>
+
+          <div class="form-group">
+            <label>Transmisión</label>
+            <input type="text" id="bikeTransmission" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <h2>3. Observaciones de ingreso</h2>
+
+        <textarea 
+          id="entryObservations" 
+          rows="4" 
+          placeholder="Ejemplo: rayón en tanque, falta espejo, daño en carenado..."
+        ></textarea>
+      </section>
+
+      <section class="form-panel">
+        <h2>4. Servicios / Productos</h2>
+
+        <div class="item-add-row">
+          <input type="text" id="itemName" placeholder="Descripción" />
+          <select id="itemType">
+            <option value="service">Servicio</option>
+            <option value="product">Producto</option>
+          </select>
+          <input type="number" id="itemQuantity" placeholder="Cant." min="1" value="1" />
+          <input type="number" id="itemPrice" placeholder="Precio" min="0" step="0.01" />
+          <button type="button" id="addItemBtn" class="btn-secondary">Agregar</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Precio unit.</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="itemsTableBody">
+              <tr>
+                <td colspan="6">Sin items agregados</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="totals-box">
+          <p>Total: <strong id="quoteTotal">S/ 0.00</strong></p>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <h2>5. Datos internos</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Técnico asignado</label>
+            <select id="assignedTo">
+              <option value="">Seleccionar técnico</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Anticipo</label>
+            <input type="number" id="advancePayment" min="0" step="0.01" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Estado inicial</label>
+            <select id="quoteStatus">
+              <option value="cotizando">Cotizando</option>
+              <option value="diagnosticando">Diagnosticando</option>
+              <option value="no_va">No va</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="actions-bar">
+        <button type="submit" class="btn-primary">Guardar cotización</button>
+        <button type="button" id="downloadPdfBtn" class="btn-secondary">Descargar PDF</button>
+      </section>
+
+    </form>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script type="module" src="./assets/js/pages/cotizar.js"></script>
+</body>
+</html>
