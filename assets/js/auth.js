@@ -1,6 +1,7 @@
 // assets/js/auth.js
 
 import { auth, db } from "./firebase-config.js";
+
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -13,8 +14,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 export async function loginUser(email, password) {
-  const credential = await signInWithEmailAndPassword(auth, email, password);
-  const userProfile = await getUserProfile(credential.user.uid);
+  const cleanEmail = email.trim().toLowerCase();
+
+  const credential = await signInWithEmailAndPassword(auth, cleanEmail, password);
+  const userProfile = await getUserProfileByEmail(cleanEmail);
 
   if (!userProfile || userProfile.active !== true) {
     await signOut(auth);
@@ -33,7 +36,19 @@ export async function logoutUser() {
 }
 
 export async function getUserProfile(uid) {
-  const userRef = doc(db, "users", uid);
+  const currentUser = auth.currentUser;
+
+  if (!currentUser?.email) {
+    return null;
+  }
+
+  return await getUserProfileByEmail(currentUser.email);
+}
+
+export async function getUserProfileByEmail(email) {
+  const cleanEmail = email.trim().toLowerCase();
+
+  const userRef = doc(db, "users", cleanEmail);
   const userSnap = await getDoc(userRef);
 
   if (!userSnap.exists()) {
@@ -41,7 +56,8 @@ export async function getUserProfile(uid) {
   }
 
   return {
-    uid: userSnap.id,
+    id: userSnap.id,
+    email: cleanEmail,
     ...userSnap.data()
   };
 }
