@@ -52,6 +52,7 @@ function setupModal() {
 async function loadActiveServices() {
   const container = document.querySelector("#activeServicesList");
   const isAdmin = session.profile.role === ROLES.ADMIN;
+  const userEmail = session.profile.email.toLowerCase();
 
   let q;
 
@@ -65,7 +66,7 @@ async function loadActiveServices() {
     q = query(
       collection(db, "workOrders"),
       where("status", "==", currentStatusFilter),
-      where("assignedTo", "==", session.firebaseUser.uid),
+      where("assignedToEmail", "==", userEmail),
       orderBy("createdAt", "asc")
     );
   }
@@ -89,12 +90,13 @@ async function loadActiveServices() {
           <h3>Servicio <span class="service-code">${order.code || order.id}</span></h3>
           <p class="card-meta">Estado: ${getStatusLabel(order.status)}</p>
           <p class="card-meta">Ingreso: ${formatDate(order.createdAt)}</p>
+          <p class="card-meta">Técnico: ${order.assignedToName || order.assignedToEmail || "-"}</p>
         </div>
 
         <span class="status-badge status-red">${getStatusLabel(order.status)}</span>
       </div>
 
-      <p>Total: <strong class="text-red admin-price">${formatCurrency(order.total || 0)}</strong></p>
+      <p class="admin-total-line">Total: <strong class="text-red admin-price">${formatCurrency(order.total || 0)}</strong></p>
 
       <div class="service-card-actions">
         <button class="btn-secondary open-service-btn" data-id="${order.id}">
@@ -105,8 +107,8 @@ async function loadActiveServices() {
   `).join("");
 
   if (!isAdmin) {
-    document.querySelectorAll(".admin-price").forEach((el) => {
-      el.textContent = "Oculto";
+    document.querySelectorAll(".admin-total-line").forEach((el) => {
+      el.style.display = "none";
     });
   }
 
@@ -134,7 +136,10 @@ function openServiceModal(orderId) {
     el.classList.toggle("hidden", !isAdmin);
   });
 
-  document.querySelector("#modalItemPrice").classList.toggle("hidden", !isAdmin);
+  const priceInput = document.querySelector("#modalItemPrice");
+  if (priceInput) {
+    priceInput.classList.toggle("hidden", !isAdmin);
+  }
 
   renderModalItems();
 
@@ -148,6 +153,7 @@ function closeModal() {
 
 function renderModalItems() {
   const container = document.querySelector("#modalItemsList");
+  const isAdmin = session.profile.role === ROLES.ADMIN;
   const isReady = selectedOrder.status === ORDER_STATUS.LISTO_TRABAJAR;
 
   const items = selectedOrder.items || [];
@@ -166,8 +172,12 @@ function renderModalItems() {
         ${isReady ? "" : "disabled"}
       />
       <span>
-        ${item.name} 
-        <strong class="item-price-admin admin-only">${formatCurrency(item.total || 0)}</strong>
+        ${item.name}
+        ${
+          isAdmin
+            ? `<strong class="item-price-admin">${formatCurrency(item.total || 0)}</strong>`
+            : ""
+        }
       </span>
     </label>
   `).join("");
@@ -208,7 +218,7 @@ async function addItemToSelectedOrder() {
     total: quantity * unitPrice,
     checklistStatus: "pending",
     approvedForWork: selectedOrder.status === ORDER_STATUS.LISTO_TRABAJAR,
-    addedBy: session.firebaseUser.uid
+    addedByEmail: session.profile.email
   };
 
   selectedOrder.items = [...(selectedOrder.items || []), newItem];
@@ -230,9 +240,14 @@ async function addItemToSelectedOrder() {
 
   document.querySelector("#modalItemName").value = "";
   document.querySelector("#modalItemQuantity").value = 1;
-  document.querySelector("#modalItemPrice").value = "";
+
+  const priceInput = document.querySelector("#modalItemPrice");
+  if (priceInput) priceInput.value = "";
 
   renderModalItems();
+
+  document.querySelector("#modalTotal").textContent = formatCurrency(total);
+  document.querySelector("#modalRemaining").textContent = formatCurrency(remainingAmount);
 }
 
 async function updateChecklistItem(itemId, checked) {
@@ -273,7 +288,7 @@ async function finishWork() {
   const confirmFinish = confirm("¿Confirmas terminar el trabajo? Ya no debería editarse.");
   if (!confirmFinish) return;
 
-  const nextStatus = selectedOrder.remainingAmount > 0
+  const nextStatus = Number(selectedOrder.remainingAmount || 0) > 0
     ? ORDER_STATUS.POR_COBRAR
     : ORDER_STATUS.POR_RECOGER;
 
@@ -291,7 +306,9 @@ async function finishWork() {
 function getStatusLabel(status) {
   const labels = {
     diagnosticando: "Diagnosticando",
-    listo_trabajar: "Listo para trabajar"
+    listo_trabajar: "Listo para trabajar",
+    por_cobrar: "Por cobrar",
+    por_recoger: "Por recoger"
   };
 
   return labels[status] || status || "-";
