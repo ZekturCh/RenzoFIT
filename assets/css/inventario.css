@@ -1,1 +1,63 @@
+/* assets/css/inventario.css */
 
+#inventorySearch {
+  max-width: 520px;
+}
+
+.product-card {
+  display: grid;
+  gap: 10px;
+}
+
+.product-card.pending {
+  border-width: 2px;
+  box-shadow: var(--shadow-red);
+}
+
+.product-name {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--white-main);
+}
+
+.product-stock {
+  color: var(--red-main);
+  font-weight: 900;
+}
+
+.product-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.approve-btn {
+  border-color: var(--green-ok);
+  color: var(--green-ok);
+}
+
+.approve-btn:hover {
+  background: var(--green-ok);
+  color: #000;
+}
+
+.deny-btn {
+  border-color: var(--red-main);
+  color: var(--red-main);
+}
+
+.deny-btn:hover {
+  background: var(--red-main);
+  color: var(--white-main);
+}
+
+.low-stock {
+  color: var(--yellow-alert);
+  font-weight: 900;
+}
+
+@media (max-width: 700px) {
+  .product-actions button {
+    width: 100%;
+  }
+}
