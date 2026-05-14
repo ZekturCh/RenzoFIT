@@ -112,6 +112,7 @@ async function loadPendingServices() {
             <h3>Servicio <span class="service-code">${order.code || docSnap.id}</span></h3>
             <p class="card-meta">Estado: ${getStatusLabel(order.status)}</p>
             <p class="card-meta">Fecha: ${formatDate(order.createdAt)}</p>
+            <p class="card-meta">Técnico: ${order.assignedToName || order.assignedToEmail || "-"}</p>
           </div>
 
           <span class="status-badge status-red">${getStatusLabel(order.status)}</span>
