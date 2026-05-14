@@ -1,1 +1,76 @@
+/* assets/css/servicios.css */
 
+.tabs-bar {
+  border-bottom: 2px solid var(--red-main);
+  padding-bottom: 14px;
+}
+
+.service-card {
+  display: grid;
+  gap: 12px;
+}
+
+.service-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.service-card h3 {
+  margin-bottom: 4px;
+  color: var(--white-main);
+}
+
+.service-card .service-code {
+  color: var(--red-main);
+  font-weight: 900;
+}
+
+.service-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.service-card-actions button {
+  padding: 9px 12px;
+}
+
+#finishWorkBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+#finishWorkBtn:disabled:hover {
+  background: var(--red-main);
+}
+
+.item-price-admin {
+  color: var(--red-main);
+  font-weight: 900;
+}
+
+.to-collect-card {
+  border-width: 2px;
+  box-shadow: var(--shadow-red);
+}
+
+.to-pickup-card {
+  border-color: var(--green-ok);
+}
+
+.to-pickup-card .status-badge {
+  border-color: var(--green-ok);
+  color: var(--green-ok);
+}
+
+@media (max-width: 700px) {
+  .service-card-top {
+    flex-direction: column;
+  }
+
+  .service-card-actions button {
+    width: 100%;
+  }
+}
