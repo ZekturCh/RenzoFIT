@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Total de Servicios | Tesen Factory Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+  <link rel="stylesheet" href="./assets/css/servicios.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Total de Servicios</h1>
+        <p>Historial general no editable</p>
+      </div>
+    </header>
+
+    <section class="filters-bar">
+      <input type="text" id="historySearch" placeholder="Buscar por cliente, placa o ID" />
+
+      <select id="historyMonth">
+        <option value="">Todos los meses</option>
+        <option value="0">Enero</option>
+        <option value="1">Febrero</option>
+        <option value="2">Marzo</option>
+        <option value="3">Abril</option>
+        <option value="4">Mayo</option>
+        <option value="5">Junio</option>
+        <option value="6">Julio</option>
+        <option value="7">Agosto</option>
+        <option value="8">Septiembre</option>
+        <option value="9">Octubre</option>
+        <option value="10">Noviembre</option>
+        <option value="11">Diciembre</option>
+      </select>
+
+      <input type="number" id="historyYear" placeholder="Año" />
+    </section>
+
+    <section class="panel-section">
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Moto</th>
+              <th>Estado</th>
+              <th>Recepción</th>
+              <th>Término</th>
+              <th>Entrega</th>
+              <th>Técnico</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+
+          <tbody id="historyTableBody">
+            <tr>
+              <td colspan="9">Cargando historial...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./assets/js/pages/total-servicios.js"></script>
+</body>
+</html>
