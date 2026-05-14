@@ -59,6 +59,8 @@ function renderHistory() {
       ${order.code || ""}
       ${order.status || ""}
       ${order.id || ""}
+      ${order.assignedToEmail || ""}
+      ${order.assignedToName || ""}
     `.toLowerCase();
 
     const matchSearch = text.includes(search);
@@ -86,7 +88,7 @@ function renderHistory() {
       <td>${formatDate(order.createdAt)}</td>
       <td>${formatDate(order.finishedAt)}</td>
       <td>${formatDate(order.deliveredAt)}</td>
-      <td>${order.assignedTo || "-"}</td>
+      <td>${order.assignedToName || order.assignedToEmail || "-"}</td>
       <td>${formatCurrency(order.total || 0)}</td>
     </tr>
   `).join("");
