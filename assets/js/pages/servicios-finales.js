@@ -68,6 +68,7 @@ async function loadToCollect() {
         <div>
           <h3>Servicio <span class="service-code">${order.code || order.id}</span></h3>
           <p class="card-meta">Terminado: ${formatDate(order.finishedAt)}</p>
+          <p class="card-meta">Técnico: ${order.assignedToName || order.assignedToEmail || "-"}</p>
           <p>Total: <strong>${formatCurrency(order.total || 0)}</strong></p>
           <p>Pagado: <strong>${formatCurrency(order.paidAmount || 0)}</strong></p>
           <p>Falta: <strong class="text-red">${formatCurrency(order.remainingAmount || 0)}</strong></p>
@@ -116,6 +117,7 @@ async function loadToPickup() {
         <div>
           <h3>Servicio <span class="service-code">${order.code || order.id}</span></h3>
           <p class="card-meta">Terminado: ${formatDate(order.finishedAt)}</p>
+          <p class="card-meta">Técnico: ${order.assignedToName || order.assignedToEmail || "-"}</p>
           <p>Total: <strong>${formatCurrency(order.total || 0)}</strong></p>
         </div>
 
@@ -173,7 +175,7 @@ async function savePayment() {
     amount,
     method,
     note,
-    createdBy: session.firebaseUser.uid,
+    createdByEmail: session.profile.email,
     createdAt: serverTimestamp()
   });
 
