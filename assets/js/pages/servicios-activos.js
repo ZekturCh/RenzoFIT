@@ -13,7 +13,6 @@ import {
   updateDoc,
   query,
   where,
-  orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -27,7 +26,7 @@ if (session) {
   renderSidebar(session.profile);
   setupTabs();
   setupModal();
-  await loadActiveServices();
+  await ;
 }
 
 function setupTabs() {
@@ -57,26 +56,30 @@ async function loadActiveServices() {
   let q;
 
   if (isAdmin) {
-    q = query(
-      collection(db, "workOrders"),
-      where("status", "==", currentStatusFilter),
-      orderBy("createdAt", "asc")
-    );
-  } else {
-    q = query(
-      collection(db, "workOrders"),
-      where("status", "==", currentStatusFilter),
-      where("assignedToEmail", "==", userEmail),
-      orderBy("createdAt", "asc")
-    );
-  }
+        q = query(
+          collection(db, "workOrders"),
+          where("status", "==", currentStatusFilter)
+        );
+      } else {
+        q = query(
+          collection(db, "workOrders"),
+          where("status", "==", currentStatusFilter),
+          where("assignedToEmail", "==", userEmail)
+        );
+      }
 
   const snapshot = await getDocs(q);
 
-  currentOrders = snapshot.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data()
-  }));
+   currentOrders = snapshot.docs
+      .map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }))
+      .sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+        return dateA - dateB;
+      });
 
   if (currentOrders.length === 0) {
     container.innerHTML = `<p class="empty-message">No hay servicios en esta sección.</p>`;
