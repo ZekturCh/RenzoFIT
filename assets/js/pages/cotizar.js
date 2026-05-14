@@ -14,12 +14,14 @@ import {
   serverTimestamp,
   Timestamp,
   query,
-  where
+  where,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const session = await requireAdmin();
 
 let items = [];
+let basicUsers = [];
 let currentSavedWorkOrder = null;
 let currentClientData = null;
 let currentBikeData = null;
@@ -42,18 +44,24 @@ async function loadBasicUsers() {
   const q = query(
     collection(db, "users"),
     where("role", "==", "basic"),
-    where("active", "==", true)
+    where("active", "==", true),
+    orderBy("name", "asc")
   );
 
   const snapshot = await getDocs(q);
 
+  basicUsers = snapshot.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
+
   assignedToSelect.innerHTML = `<option value="">Seleccionar técnico</option>`;
 
-  snapshot.forEach((docSnap) => {
-    const user = docSnap.data();
+  basicUsers.forEach((user) => {
+    const email = (user.email || user.id || "").toLowerCase();
 
     assignedToSelect.innerHTML += `
-      <option value="${docSnap.id}">${user.name || user.email}</option>
+      <option value="${email}">${user.name || email}</option>
     `;
   });
 }
@@ -83,7 +91,7 @@ function addItemToQuote() {
     total: quantity * unitPrice,
     checklistStatus: "pending",
     approvedForWork: true,
-    addedBy: session.firebaseUser.uid
+    addedByEmail: session.profile.email
   });
 
   nameInput.value = "";
@@ -143,7 +151,14 @@ async function saveQuote(event) {
     return;
   }
 
-  const assignedTo = document.querySelector("#assignedTo").value;
+  const assignedToEmail = document.querySelector("#assignedTo").value || null;
+  const assignedUser = basicUsers.find((user) => {
+    const email = (user.email || user.id || "").toLowerCase();
+    return email === assignedToEmail;
+  });
+
+  const assignedToName = assignedUser?.name || assignedToEmail || "";
+
   const status = document.querySelector("#quoteStatus").value;
   const advancePayment = Number(document.querySelector("#advancePayment").value || 0);
   const total = calculateItemsTotal(items);
@@ -171,7 +186,9 @@ async function saveQuote(event) {
 
     clientId: clientRef.id,
     bikeId: bikeRef.id,
-    assignedTo: assignedTo || null,
+
+    assignedToEmail,
+    assignedToName,
 
     status,
 
@@ -185,7 +202,7 @@ async function saveQuote(event) {
 
     advancePayment,
     paidAmount: advancePayment,
-    remainingAmount: total - advancePayment,
+    remainingAmount: Math.max(total - advancePayment, 0),
 
     quoteDate: Timestamp.fromDate(quoteDate),
     quoteExpiresAt: Timestamp.fromDate(quoteExpiresAt),
@@ -195,7 +212,7 @@ async function saveQuote(event) {
     finishedAt: null,
     deliveredAt: null,
 
-    createdBy: session.firebaseUser.uid,
+    createdByEmail: session.profile.email,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
