@@ -1,1 +1,47 @@
+/* assets/css/directorio.css */
 
+#directorySearch {
+  max-width: 520px;
+}
+
+.client-card {
+  display: grid;
+  gap: 12px;
+}
+
+.client-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.client-name {
+  font-size: 18px;
+  color: var(--white-main);
+  font-weight: 900;
+}
+
+.client-phone {
+  color: var(--red-main);
+  font-weight: 900;
+}
+
+.bikes-list {
+  display: grid;
+  gap: 8px;
+}
+
+.bike-row {
+  border: 1px solid var(--red-dark);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: #000;
+}
+
+.bike-row strong {
+  color: var(--white-main);
+}
+
+.bike-row span {
+  color: var(--white-soft);
+}
