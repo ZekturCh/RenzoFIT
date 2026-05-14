@@ -96,6 +96,7 @@ async function saveClient() {
     documentType: document.querySelector("#dirDocumentType").value,
     documentNumber: document.querySelector("#dirDocumentNumber").value.trim(),
     phone: document.querySelector("#dirPhone").value.trim(),
+    createdByEmail: session.profile.email,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
@@ -117,6 +118,7 @@ async function saveClient() {
     vin: document.querySelector("#dirBikeVin").value.trim(),
     year: Number(document.querySelector("#dirBikeYear").value || 0),
     transmission: document.querySelector("#dirBikeTransmission").value.trim(),
+    createdByEmail: session.profile.email,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   };
