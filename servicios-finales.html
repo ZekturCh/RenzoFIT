@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Servicios Finales | Tesen Factory Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+  <link rel="stylesheet" href="./assets/css/servicios.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Servicios Finales</h1>
+        <p>Por cobrar y por recoger</p>
+      </div>
+    </header>
+
+    <section class="panel-section danger-priority">
+      <h2>Por cobrar</h2>
+      <div id="toCollectList" class="cards-list">
+        <p class="empty-message">Cargando servicios por cobrar...</p>
+      </div>
+    </section>
+
+    <section class="panel-section">
+      <h2>Por recoger</h2>
+      <div id="toPickupList" class="cards-list">
+        <p class="empty-message">Cargando servicios por recoger...</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="paymentModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closePaymentModal" class="modal-close">×</button>
+
+      <h2>Registrar pago</h2>
+
+      <div class="form-group">
+        <label>Monto</label>
+        <input type="number" id="paymentAmount" min="0" step="0.01" />
+      </div>
+
+      <div class="form-group">
+        <label>Método de pago</label>
+        <select id="paymentMethod">
+          <option value="efectivo">Efectivo</option>
+          <option value="yape">Yape</option>
+          <option value="plin">Plin</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Nota</label>
+        <textarea id="paymentNote" rows="3"></textarea>
+      </div>
+
+      <button id="savePaymentBtn" class="btn-primary">
+        Guardar pago
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/pages/servicios-finales.js"></script>
+</body>
+</html>
