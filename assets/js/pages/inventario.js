@@ -178,7 +178,7 @@ async function saveProduct() {
     unit: "unidad",
     approved: isAdmin,
     pendingApproval: !isAdmin,
-    createdBy: session.firebaseUser.uid,
+    createdByEmail: session.profile.email,
     createdByRole: session.profile.role,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -208,8 +208,8 @@ async function approveProduct(productId) {
   await updateDoc(doc(db, "inventory", productId), {
     approved: true,
     pendingApproval: false,
-    purchasePrice: product.purchasePrice || 0,
-    salePrice: product.salePrice || 0,
+    purchasePrice: Number(product.purchasePrice || 0),
+    salePrice: Number(product.salePrice || 0),
     updatedAt: serverTimestamp()
   });
 
