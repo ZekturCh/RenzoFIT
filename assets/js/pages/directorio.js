@@ -15,6 +15,7 @@ import {
 
 const session = await requireAdmin();
 
+let bikesToSave = [];
 let clients = [];
 
 if (session) {
@@ -28,6 +29,7 @@ function setupDirectoryEvents() {
   document.querySelector("#closeClientModal").addEventListener("click", closeClientModal);
   document.querySelector("#saveClientBtn").addEventListener("click", saveClient);
   document.querySelector("#directorySearch").addEventListener("input", renderClients);
+  document.querySelector("#addBikeToClientBtn").addEventListener("click", addBikeToPreview);
 }
 
 async function loadClients() {
@@ -40,6 +42,69 @@ async function loadClients() {
   }));
 
   renderClients();
+}
+
+function addBikeToPreview() {
+  const bike = {
+    brand: document.querySelector("#dirBikeBrand").value.trim(),
+    model: document.querySelector("#dirBikeModel").value.trim(),
+    mileage: Number(document.querySelector("#dirBikeMileage").value || 0),
+    plate: document.querySelector("#dirBikePlate").value.trim(),
+    color: document.querySelector("#dirBikeColor").value.trim(),
+    vin: document.querySelector("#dirBikeVin").value.trim(),
+    year: Number(document.querySelector("#dirBikeYear").value || 0),
+    transmission: document.querySelector("#dirBikeTransmission").value
+  };
+
+  if (!bike.brand && !bike.model && !bike.plate) {
+    alert("Agrega al menos marca, modelo o placa.");
+    return;
+  }
+
+  bikesToSave.push({
+    id: crypto.randomUUID(),
+    ...bike
+  });
+
+  clearBikeForm();
+  renderBikesPreview();
+}
+
+function renderBikesPreview() {
+  const container = document.querySelector("#clientBikesPreview");
+
+  if (bikesToSave.length === 0) {
+    container.innerHTML = `<p class="empty-message">Todavía no agregaste motos.</p>`;
+    return;
+  }
+
+  container.innerHTML = bikesToSave.map((bike) => `
+    <div class="bike-row">
+      <strong>${bike.brand || "-"} ${bike.model || ""}</strong>
+      <span>Placa: ${bike.plate || "-"}</span>
+      <button type="button" class="remove-preview-bike btn-secondary" data-id="${bike.id}">
+        Quitar
+      </button>
+    </div>
+  `).join("");
+
+  document.querySelectorAll(".remove-preview-bike").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      bikesToSave = bikesToSave.filter((bike) => bike.id !== btn.dataset.id);
+      renderBikesPreview();
+    });
+  });
+}
+
+function clearBikeForm() {
+  document.querySelector("#dirBikeBrand").value = "";
+  document.querySelector("#dirBikeModel").value = "";
+  document.querySelector("#dirBikeMileage").value = "";
+  document.querySelector("#dirBikePlate").value = "";
+  document.querySelector("#dirBikeColor").value = "";
+  document.querySelector("#dirBikeVin").value = "";
+  document.querySelector("#dirBikeYear").value = "";
+  document.querySelector("#dirBikeTransmission").value = "";
 }
 
 function renderClients() {
@@ -106,28 +171,33 @@ async function saveClient() {
     return;
   }
 
+  // 1. Guarda el cliente
   const clientRef = await addDoc(collection(db, "clients"), clientPayload);
 
-  const bikePayload = {
-    clientId: clientRef.id,
-    brand: document.querySelector("#dirBikeBrand").value.trim(),
-    model: document.querySelector("#dirBikeModel").value.trim(),
-    mileage: Number(document.querySelector("#dirBikeMileage").value || 0),
-    plate: document.querySelector("#dirBikePlate").value.trim(),
-    color: document.querySelector("#dirBikeColor").value.trim(),
-    vin: document.querySelector("#dirBikeVin").value.trim(),
-    year: Number(document.querySelector("#dirBikeYear").value || 0),
-    transmission: document.querySelector("#dirBikeTransmission").value.trim(),
-    createdByEmail: session.profile.email,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  };
-
-  if (bikePayload.brand || bikePayload.plate || bikePayload.model) {
-    await addDoc(collection(db, "bikes"), bikePayload);
+  // 2. Guarda todas las motos agregadas a la lista temporal
+  for (const bike of bikesToSave) {
+    await addDoc(collection(db, "bikes"), {
+      clientId: clientRef.id,
+      brand: bike.brand,
+      model: bike.model,
+      mileage: bike.mileage,
+      plate: bike.plate,
+      color: bike.color,
+      vin: bike.vin,
+      year: bike.year,
+      transmission: bike.transmission,
+      createdByEmail: session.profile.email,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
   }
 
   alert("Cliente guardado.");
+
+  // 3. Limpia todo
+  bikesToSave = [];
+  renderBikesPreview();
+
   closeClientModal();
   await loadClients();
 }
