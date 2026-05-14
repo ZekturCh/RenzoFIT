@@ -79,59 +79,67 @@
       </section>
 
       <section class="form-panel">
-        <h3>Moto</h3>
+  <h3>Motos del cliente</h3>
 
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Marca</label>
-            <input type="text" id="dirBikeBrand" />
-          </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Marca</label>
+      <input type="text" id="dirBikeBrand" />
+    </div>
 
-          <div class="form-group">
-            <label>Modelo</label>
-            <input type="text" id="dirBikeModel" />
-          </div>
+    <div class="form-group">
+      <label>Modelo</label>
+      <input type="text" id="dirBikeModel" />
+    </div>
 
-          <div class="form-group">
-            <label>Kilometraje</label>
-            <input type="number" id="dirBikeMileage" />
-          </div>
+    <div class="form-group">
+      <label>Kilometraje</label>
+      <input type="number" id="dirBikeMileage" />
+    </div>
 
-          <div class="form-group">
-            <label>Placa</label>
-            <input type="text" id="dirBikePlate" />
-          </div>
+    <div class="form-group">
+      <label>Placa</label>
+      <input type="text" id="dirBikePlate" />
+    </div>
 
-          <div class="form-group">
-            <label>Color</label>
-            <input type="text" id="dirBikeColor" />
-          </div>
+    <div class="form-group">
+      <label>Color</label>
+      <input type="text" id="dirBikeColor" />
+    </div>
 
-          <div class="form-group">
-            <label>Nro. VIN</label>
-            <input type="text" id="dirBikeVin" />
-          </div>
+    <div class="form-group">
+      <label>Nro. VIN</label>
+      <input type="text" id="dirBikeVin" />
+    </div>
 
-          <div class="form-group">
-            <label>Año</label>
-            <input type="number" id="dirBikeYear" />
-          </div>
+    <div class="form-group">
+      <label>Año</label>
+      <input type="number" id="dirBikeYear" />
+    </div>
 
-          <div class="form-group">
-            <label>Tipo / sistema</label>
-            <select id="dirBikeTransmission">
-              <option value="">Seleccionar</option>
-              <option value="Manual">Manual</option>
-              <option value="Automática">Automática</option>
-              <option value="Inyección">Inyección</option>
-              <option value="Carburada">Carburada</option>
-              <option value="Cuatrimoto">Cuatrimoto</option>
-              <option value="Scooter">Scooter</option>
-              <option value="Otro">Otro</option>
-            </select>
-          </div>
-        </div>
-      </section>
+    <div class="form-group">
+      <label>Tipo / sistema</label>
+      <select id="dirBikeTransmission">
+        <option value="">Seleccionar</option>
+        <option value="Manual">Manual</option>
+        <option value="Automática">Automática</option>
+        <option value="Inyección">Inyección</option>
+        <option value="Carburada">Carburada</option>
+        <option value="Cuatrimoto">Cuatrimoto</option>
+        <option value="Scooter">Scooter</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+  </div>
+
+  <button type="button" id="addBikeToClientBtn" class="btn-secondary">
+    Agregar moto a la lista
+  </button>
+
+  <div id="clientBikesPreview" class="bikes-preview">
+    <p class="empty-message">Todavía no agregaste motos.</p>
+  </div>
+</section>
 
       <button id="saveClientBtn" class="btn-primary">
         Guardar cliente
