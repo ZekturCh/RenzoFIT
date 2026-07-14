@@ -1,3 +1,5 @@
+/* assets/css/components.css */
+
 .btn-primary,
 .btn-secondary,
 .btn-success,
@@ -75,6 +77,12 @@ button:disabled {
   padding: 12px;
 }
 
+.days-box input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+  accent-color: var(--accent);
+}
+
 .quick-days,
 .filters-bar,
 .actions-bar,
@@ -120,19 +128,24 @@ button:disabled {
   align-items: center;
   border-radius: 999px;
   padding: 6px 10px;
-  background: rgba(0,255,133,0.12);
+  background: rgba(0, 255, 133, 0.12);
   color: var(--accent);
   font-weight: 900;
   font-size: 12px;
 }
 
 .badge-red {
-  background: rgba(255,23,68,0.15);
+  background: rgba(255, 23, 68, 0.15);
   color: var(--danger);
 }
 
 .badge-green {
   color: var(--accent);
+}
+
+.badge-yellow {
+  background: rgba(255, 204, 0, 0.15);
+  color: var(--warning);
 }
 
 .student-progress {
@@ -178,7 +191,7 @@ button:disabled {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.78);
+  background: rgba(0, 0, 0, 0.78);
   z-index: 99;
   display: grid;
   place-items: center;
@@ -205,6 +218,142 @@ button:disabled {
   font-size: 28px;
 }
 
+/* Fecha de agenda */
+
+.date-filter-box {
+  flex: 1;
+  min-width: 220px;
+}
+
+.date-label {
+  margin: 8px 0 0;
+  color: var(--accent);
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+/* Estudiante ya iniciado */
+
+.already-started-box {
+  margin: 18px 0;
+}
+
+.check-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: var(--border);
+  background: #090909;
+  border-radius: 16px;
+  padding: 14px;
+  cursor: pointer;
+}
+
+.check-card input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--accent);
+}
+
+.check-card span {
+  display: grid;
+  gap: 4px;
+}
+
+.check-card strong {
+  color: var(--white);
+}
+
+.check-card small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.session-summary-box {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.session-summary-box p {
+  margin: 0;
+  border: var(--border);
+  background: #090909;
+  border-radius: 14px;
+  padding: 14px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.session-summary-box strong {
+  display: block;
+  color: var(--accent);
+  font-size: 24px;
+  margin-top: 4px;
+}
+
+/* Flatpickr oscuro */
+
+.flatpickr-calendar {
+  background: var(--bg-panel);
+  border: var(--border);
+  box-shadow: var(--shadow);
+  color: var(--white);
+}
+
+.flatpickr-months,
+.flatpickr-weekdays {
+  background: var(--bg-panel);
+}
+
+.flatpickr-current-month,
+.flatpickr-monthDropdown-months,
+.flatpickr-weekday {
+  color: var(--white) !important;
+}
+
+.flatpickr-monthDropdown-months {
+  background: var(--bg-panel) !important;
+}
+
+.flatpickr-monthDropdown-month {
+  background: var(--bg-panel) !important;
+  color: var(--white) !important;
+}
+
+.flatpickr-day {
+  color: var(--white);
+  border-radius: 10px;
+}
+
+.flatpickr-day:hover {
+  background: rgba(0, 255, 133, 0.15);
+  border-color: var(--accent);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+
+.flatpickr-day.today {
+  border-color: var(--accent);
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.flatpickr-input[readonly] {
+  cursor: pointer;
+}
+
 @media (max-width: 820px) {
   .stats-grid,
   .form-grid,
@@ -220,16 +369,8 @@ button:disabled {
   .action-grid button {
     flex: 1 1 100%;
   }
-}
 
-.date-filter-box {
-  flex: 1;
-  min-width: 220px;
-}
-
-.date-label {
-  margin: 8px 0 0;
-  color: var(--accent);
-  font-weight: 900;
-  text-transform: capitalize;
+  .session-summary-box {
+    grid-template-columns: 1fr;
+  }
 }
