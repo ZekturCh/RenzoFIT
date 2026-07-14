@@ -24,7 +24,10 @@ async function loadStudents() {
   const snapshot = await getDocs(collection(db, "students"));
 
   students = snapshot.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }))
     .sort((a, b) => (a.fullName || "").localeCompare(b.fullName || ""));
 
   renderStudents();
@@ -53,7 +56,7 @@ function renderStudents() {
     <article class="student-card">
       <div class="card-main">
         <div>
-          <strong>${student.fullName}</strong>
+          <strong>${student.fullName || "Sin nombre"}</strong>
           <p>${student.phone || "-"}</p>
           <p>Objetivo: ${student.objective || "-"}</p>
         </div>
@@ -83,6 +86,12 @@ function renderStudents() {
       <div class="payment-line">
         <span>Pagado: ${formatCurrency(student.paidAmount || 0)}</span>
         <span>Falta: ${formatCurrency(student.remainingAmount || 0)}</span>
+      </div>
+
+      <div class="student-actions">
+        <a class="btn-secondary" href="./detalle-estudiante.html?id=${student.id}">
+          Ver / Editar
+        </a>
       </div>
     </article>
   `).join("");
