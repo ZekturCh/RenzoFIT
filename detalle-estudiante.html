@@ -1,0 +1,220 @@
+<!-- detalle-estudiante.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Detalle estudiante | Coach Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1 id="studentTitle">Detalle estudiante</h1>
+        <p id="studentSubtitle">Cargando información...</p>
+      </div>
+
+      <a href="./estudiantes.html" class="btn-secondary">Volver</a>
+    </header>
+
+    <section class="detail-grid">
+      <article class="stat-card">
+        <span>Pack total</span>
+        <strong id="totalSessionsBox">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Usadas</span>
+        <strong id="usedSessionsBox">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Restantes</span>
+        <strong id="remainingSessionsBox">0</strong>
+      </article>
+
+      <article class="stat-card">
+        <span>Pago</span>
+        <strong id="paymentStatusBox">-</strong>
+      </article>
+    </section>
+
+    <section class="form-panel">
+      <h2>Datos del estudiante</h2>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombres</label>
+          <input id="editFirstName" type="text" />
+        </div>
+
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input id="editLastName" type="text" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input id="editPhone" type="tel" />
+        </div>
+
+        <div class="form-group">
+          <label>Objetivo</label>
+          <select id="editObjective">
+            <option value="Bajar grasa">Bajar grasa</option>
+            <option value="Ganar músculo">Ganar músculo</option>
+            <option value="Rendimiento">Rendimiento</option>
+            <option value="Salud">Salud</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Hora base</label>
+          <input id="editDefaultTime" type="time" />
+        </div>
+
+        <div class="form-group">
+          <label>Duración</label>
+          <select id="editDuration">
+            <option value="60">1 hora</option>
+            <option value="45">45 min</option>
+            <option value="90">1h 30min</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="editNotes" rows="3"></textarea>
+      </div>
+
+      <button id="saveStudentBtn" class="btn-primary" type="button">
+        Guardar datos
+      </button>
+    </section>
+
+    <section class="form-panel">
+      <h2>Calendario de sesiones pendientes</h2>
+      <p>
+        Marca exactamente la cantidad de sesiones restantes. Esto reemplazará las sesiones pendientes actuales, sin tocar asistencias, faltas ni historial.
+      </p>
+
+      <div class="calendar-toolbar">
+        <button id="prevMonthBtn" class="btn-secondary" type="button">Mes anterior</button>
+        <h3 id="calendarMonthTitle">Mes</h3>
+        <button id="nextMonthBtn" class="btn-secondary" type="button">Mes siguiente</button>
+      </div>
+
+      <div class="calendar-counter">
+        Seleccionadas: <strong id="selectedDatesCount">0</strong> /
+        Necesarias: <strong id="targetDatesCount">0</strong>
+      </div>
+
+      <div id="editableCalendar" class="editable-calendar"></div>
+
+      <div class="actions-bar">
+        <button id="saveCalendarBtn" class="btn-primary" type="button">
+          Guardar calendario
+        </button>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <h2>Agregar nuevo pack</h2>
+      <p>
+        Úsalo cuando el estudiante compre más sesiones. Se suman al saldo actual y se generan nuevas fechas.
+      </p>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pack nuevo</label>
+          <select id="newPackSessions">
+            <option value="12">12 sesiones</option>
+            <option value="16">16 sesiones</option>
+            <option value="20">20 sesiones</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Generar desde</label>
+          <input id="newPackStartDate" type="text" placeholder="dd/mm/aaaa" />
+        </div>
+
+        <div class="form-group">
+          <label>Hora base</label>
+          <input id="newPackTime" type="time" />
+        </div>
+
+        <div class="form-group">
+          <label>Monto total del nuevo pack</label>
+          <input id="newPackTotalAmount" type="number" min="0" step="0.01" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label>Monto pagado</label>
+          <input id="newPackPaidAmount" type="number" min="0" step="0.01" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label>Método de pago</label>
+          <select id="newPackPaymentMethod">
+            <option value="efectivo">Efectivo</option>
+            <option value="yape">Yape</option>
+            <option value="plin">Plin</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>Días del nuevo pack</h3>
+
+      <div class="days-box">
+        <label><input type="checkbox" name="newPackDay" value="monday" /> Lunes</label>
+        <label><input type="checkbox" name="newPackDay" value="tuesday" /> Martes</label>
+        <label><input type="checkbox" name="newPackDay" value="wednesday" /> Miércoles</label>
+        <label><input type="checkbox" name="newPackDay" value="thursday" /> Jueves</label>
+        <label><input type="checkbox" name="newPackDay" value="friday" /> Viernes</label>
+        <label><input type="checkbox" name="newPackDay" value="saturday" /> Sábado</label>
+        <label><input type="checkbox" name="newPackDay" value="sunday" /> Domingo</label>
+      </div>
+
+      <div class="quick-days">
+        <button type="button" class="btn-secondary new-pack-quick" data-days="monday,wednesday,friday">L-M-V</button>
+        <button type="button" class="btn-secondary new-pack-quick" data-days="tuesday,thursday,saturday">M-J-S</button>
+      </div>
+
+      <div class="actions-bar">
+        <button id="addPackBtn" class="btn-primary" type="button">
+          Agregar pack y generar sesiones
+        </button>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <h2>Historial de sesiones</h2>
+
+      <div id="sessionsHistoryList" class="cards-list">
+        <p class="empty-message">Cargando historial...</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+  <script type="module" src="./assets/js/pages/detalle-estudiante.js"></script>
+</body>
+</html>
