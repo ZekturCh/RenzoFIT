@@ -221,3 +221,15 @@ button:disabled {
     flex: 1 1 100%;
   }
 }
+
+.date-filter-box {
+  flex: 1;
+  min-width: 220px;
+}
+
+.date-label {
+  margin: 8px 0 0;
+  color: var(--accent);
+  font-weight: 900;
+  text-transform: capitalize;
+}
