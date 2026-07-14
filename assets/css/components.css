@@ -374,3 +374,26 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+.dashboard-session-group {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.dashboard-session-group h3 {
+  margin: 0;
+  color: var(--white);
+}
+
+.dashboard-session-card {
+  display: grid;
+  gap: 12px;
+}
+
+.mini-link {
+  display: inline-flex;
+  width: fit-content;
+  font-size: 13px;
+  padding: 10px 14px;
+}
