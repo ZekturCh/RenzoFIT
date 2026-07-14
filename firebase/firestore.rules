@@ -4,91 +4,23 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() {
-      return request.auth != null && request.auth.token.email != null;
+      return request.auth != null;
     }
 
-    function cleanEmail() {
-      return request.auth.token.email.lower();
+    match /students/{studentId} {
+      allow read, write: if signedIn();
     }
 
-    function userPath() {
-      return /databases/$(database)/documents/users/$(cleanEmail());
-    }
-
-    function userDoc() {
-      return get(userPath());
-    }
-
-    function isActive() {
-      return signedIn()
-        && exists(userPath())
-        && userDoc().data.active == true;
-    }
-
-    function isAdmin() {
-      return isActive() && userDoc().data.role == "admin";
-    }
-
-    function isBasic() {
-      return isActive() && userDoc().data.role == "basic";
-    }
-
-    match /users/{email} {
-      allow read: if isAdmin() || (signedIn() && email == cleanEmail());
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /clients/{clientId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /bikes/{bikeId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /serviceCatalog/{serviceId} {
-      allow read: if isActive();
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /inventory/{productId} {
-      allow read: if isActive();
-
-      allow create, update, delete: if isAdmin();
-
-      allow create: if isBasic()
-        && request.resource.data.approved == false
-        && request.resource.data.pendingApproval == true
-        && request.resource.data.createdByEmail == cleanEmail()
-        && !("purchasePrice" in request.resource.data)
-        && !("salePrice" in request.resource.data);
-    }
-
-    match /workOrders/{orderId} {
-      allow read: if isAdmin()
-        || (isBasic() && resource.data.assignedToEmail == cleanEmail());
-
-      allow create, update, delete: if isAdmin();
-
-      allow update: if isBasic()
-        && resource.data.assignedToEmail == cleanEmail()
-        && resource.data.status in ["diagnosticando", "listo_trabajar"];
+    match /sessions/{sessionId} {
+      allow read, write: if signedIn();
     }
 
     match /payments/{paymentId} {
-      allow read, write: if isAdmin();
-    }
-
-    match /inventoryMovements/{movementId} {
-      allow read: if isAdmin();
-      allow create: if isAdmin();
-      allow update, delete: if false;
+      allow read, write: if signedIn();
     }
 
     match /activityLogs/{logId} {
-      allow read: if isAdmin();
-      allow create: if isActive();
-      allow update, delete: if false;
+      allow read, write: if signedIn();
     }
 
     match /{document=**} {
