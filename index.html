@@ -4,12 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Dashboard | Tesen Factory Admin</title>
+  <title>Dashboard | Coach Admin</title>
 
   <link rel="stylesheet" href="./assets/css/base.css" />
   <link rel="stylesheet" href="./assets/css/layout.css" />
   <link rel="stylesheet" href="./assets/css/components.css" />
-  <link rel="stylesheet" href="./assets/css/dashboard.css" />
 </head>
 <body>
 
@@ -19,43 +18,36 @@
     <header class="page-header">
       <div>
         <h1>Dashboard</h1>
-        <p>Resumen general del taller</p>
+        <p>Resumen rápido de estudiantes y sesiones.</p>
       </div>
     </header>
 
-    <section class="filters-bar">
-      <button class="filter-btn active" data-filter="today">Hoy</button>
-      <button class="filter-btn" data-filter="week">Semana</button>
-      <button class="filter-btn" data-filter="month">Último mes</button>
-    </section>
-
-    <section class="dashboard-grid">
+    <section class="stats-grid">
       <article class="stat-card">
-        <span>Clientes totales</span>
-        <strong id="totalClients">0</strong>
+        <span>Estudiantes activos</span>
+        <strong id="activeStudents">0</strong>
       </article>
 
       <article class="stat-card">
-        <span>Producto más vendido</span>
-        <strong id="topProduct">-</strong>
+        <span>Sesiones de hoy</span>
+        <strong id="todaySessions">0</strong>
       </article>
 
       <article class="stat-card">
-        <span>Stock más bajo</span>
-        <strong id="lowStock">-</strong>
+        <span>Pagos pendientes</span>
+        <strong id="pendingPayments">0</strong>
       </article>
 
       <article class="stat-card">
-        <span>Servicio más antiguo sin atender</span>
-        <strong id="oldestService">-</strong>
+        <span>Por terminar pack</span>
+        <strong id="lowSessions">0</strong>
       </article>
     </section>
 
     <section class="panel-section">
-      <h2>Servicios pendientes</h2>
-
-      <div id="pendingServicesList" class="cards-list">
-        <p class="empty-message">Cargando servicios...</p>
+      <h2>Próximas sesiones</h2>
+      <div id="nextSessionsList" class="cards-list">
+        <p class="empty-message">Cargando agenda...</p>
       </div>
     </section>
   </main>
