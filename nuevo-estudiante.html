@@ -1,3 +1,5 @@
+<!-- nuevo-estudiante.html -->
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,6 +11,9 @@
   <link rel="stylesheet" href="./assets/css/base.css" />
   <link rel="stylesheet" href="./assets/css/layout.css" />
   <link rel="stylesheet" href="./assets/css/components.css" />
+
+  <!-- Calendario bonito -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </head>
 <body>
 
@@ -75,28 +80,10 @@
           </div>
 
           <div class="form-group">
-            <label>Fecha de inicio</label>
-            <input id="startDate" type="date" required />
+            <label>Fecha de inicio del pack</label>
+            <input id="startDate" type="text" required placeholder="dd/mm/aaaa" />
           </div>
 
-          <div class="form-group">
-            <label>
-              <input type="checkbox" id="alreadyStarted" />
-              Este estudiante ya empezó clases
-            </label>
-          </div>
-          
-          <div id="startedFields" class="form-grid hidden">
-            <div class="form-group">
-              <label>Sesiones ya usadas</label>
-              <input id="usedSessionsInitial" type="number" min="0" value="0" />
-            </div>
-          
-            <div class="form-group">
-              <label>Generar agenda desde</label>
-              <input id="continueFromDate" type="date" />
-            </div>
-          </div>
           <div class="form-group">
             <label>Hora fija</label>
             <input id="defaultTime" type="time" value="07:00" required />
@@ -112,6 +99,30 @@
           </div>
         </div>
 
+        <div class="already-started-box">
+          <label class="check-card">
+            <input type="checkbox" id="alreadyStarted" />
+            <span>
+              <strong>Este estudiante ya empezó clases</strong>
+              <small>Úsalo si ya consumió sesiones antes de registrarlo en el sistema.</small>
+            </span>
+          </label>
+        </div>
+
+        <div id="startedFields" class="form-grid hidden">
+          <div class="form-group">
+            <label>Sesiones ya usadas</label>
+            <input id="usedSessionsInitial" type="number" min="0" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Generar agenda desde</label>
+            <input id="continueFromDate" type="text" placeholder="dd/mm/aaaa" />
+          </div>
+        </div>
+
+        <h3>Días de entrenamiento</h3>
+
         <div class="days-box">
           <label><input type="checkbox" name="trainingDay" value="monday" /> Lunes</label>
           <label><input type="checkbox" name="trainingDay" value="tuesday" /> Martes</label>
@@ -125,6 +136,12 @@
         <div class="quick-days">
           <button type="button" class="btn-secondary" data-days="monday,wednesday,friday">L-M-V</button>
           <button type="button" class="btn-secondary" data-days="tuesday,thursday,saturday">M-J-S</button>
+        </div>
+
+        <div class="session-summary-box">
+          <p>Total del pack: <strong id="summaryTotalSessions">12</strong></p>
+          <p>Ya usadas: <strong id="summaryUsedSessions">0</strong></p>
+          <p>Se generarán: <strong id="summarySessionsToGenerate">12</strong></p>
         </div>
       </section>
 
@@ -160,6 +177,10 @@
       </section>
     </form>
   </main>
+
+  <!-- Flatpickr -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
   <script type="module" src="./assets/js/pages/nuevo-estudiante.js"></script>
 </body>
