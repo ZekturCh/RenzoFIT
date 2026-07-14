@@ -1,0 +1,217 @@
+// assets/js/pages/agenda.js
+
+import { db } from "../firebase-config.js";
+import { requireAdmin } from "../guards.js";
+import { renderSidebar } from "../layout.js";
+import { SESSION_STATUS } from "../constants.js";
+import { getTodayISO, getSessionLabel } from "../utils.js";
+
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  getDoc,
+  query,
+  where,
+  serverTimestamp,
+  Timestamp,
+  increment
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const session = await requireAdmin();
+
+let selectedDate = getTodayISO();
+let sessions = [];
+let selectedSession = null;
+
+if (session) {
+  renderSidebar(session.profile);
+  initAgenda();
+  await loadSessions();
+}
+
+function initAgenda() {
+  const agendaDate = document.querySelector("#agendaDate");
+  agendaDate.value = selectedDate;
+
+  agendaDate.addEventListener("change", async () => {
+    selectedDate = agendaDate.value;
+    await loadSessions();
+  });
+
+  document.querySelector("#todayBtn").addEventListener("click", async () => {
+    selectedDate = getTodayISO();
+    agendaDate.value = selectedDate;
+    await loadSessions();
+  });
+
+  document.querySelector("#closeRescheduleModal").addEventListener("click", closeRescheduleModal);
+  document.querySelector("#saveRescheduleBtn").addEventListener("click", saveReschedule);
+}
+
+async function loadSessions() {
+  const q = query(
+    collection(db, "sessions"),
+    where("dateISO", "==", selectedDate)
+  );
+
+  const snapshot = await getDocs(q);
+
+  sessions = snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
+
+  renderSessions();
+}
+
+function renderSessions() {
+  const container = document.querySelector("#sessionsList");
+
+  if (sessions.length === 0) {
+    container.innerHTML = `<p class="empty-message">No hay sesiones para esta fecha.</p>`;
+    return;
+  }
+
+  container.innerHTML = sessions.map((s) => `
+    <article class="session-card ${s.status}">
+      <div class="card-main">
+        <div>
+          <strong>${s.startTime} · ${s.studentName}</strong>
+          <p>Sesión ${s.sessionNumber || "-"}</p>
+          <p>Estado: ${getSessionLabel(s.status)}</p>
+        </div>
+
+        <span class="badge">${getSessionLabel(s.status)}</span>
+      </div>
+
+      <div class="action-grid">
+        <button class="btn-success attend-btn" data-id="${s.id}" ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}>
+          Asistió
+        </button>
+
+        <button class="btn-secondary postpone-btn" data-id="${s.id}" ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}>
+          Postergar
+        </button>
+
+        <button class="btn-danger missed-btn" data-id="${s.id}" ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}>
+          Falta
+        </button>
+      </div>
+    </article>
+  `).join("");
+
+  document.querySelectorAll(".attend-btn").forEach((btn) => {
+    btn.addEventListener("click", () => markAttended(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".postpone-btn").forEach((btn) => {
+    btn.addEventListener("click", () => openRescheduleModal(btn.dataset.id));
+  });
+
+  document.querySelectorAll(".missed-btn").forEach((btn) => {
+    btn.addEventListener("click", () => markMissed(btn.dataset.id));
+  });
+}
+
+async function markAttended(sessionId) {
+  const current = sessions.find((s) => s.id === sessionId);
+  if (!current) return;
+
+  const confirmAction = confirm("¿Marcar como asistió y descontar 1 sesión?");
+  if (!confirmAction) return;
+
+  await updateDoc(doc(db, "sessions", sessionId), {
+    status: SESSION_STATUS.ATTENDED,
+    countsAsUsed: true,
+    attendedAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+
+  const studentRef = doc(db, "students", current.studentId);
+  const studentSnap = await getDoc(studentRef);
+
+  if (studentSnap.exists()) {
+    const student = studentSnap.data();
+    const remaining = Math.max(Number(student.remainingSessions || 0) - 1, 0);
+
+    await updateDoc(studentRef, {
+      usedSessions: increment(1),
+      remainingSessions: remaining,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  await loadSessions();
+}
+
+async function markMissed(sessionId) {
+  const current = sessions.find((s) => s.id === sessionId);
+  if (!current) return;
+
+  const shouldDiscount = confirm("¿La falta descuenta sesión? Aceptar = sí, Cancelar = no.");
+
+  await updateDoc(doc(db, "sessions", sessionId), {
+    status: SESSION_STATUS.MISSED,
+    countsAsUsed: shouldDiscount,
+    updatedAt: serverTimestamp()
+  });
+
+  if (shouldDiscount) {
+    const studentRef = doc(db, "students", current.studentId);
+    const studentSnap = await getDoc(studentRef);
+
+    if (studentSnap.exists()) {
+      const student = studentSnap.data();
+      const remaining = Math.max(Number(student.remainingSessions || 0) - 1, 0);
+
+      await updateDoc(studentRef, {
+        usedSessions: increment(1),
+        remainingSessions: remaining,
+        updatedAt: serverTimestamp()
+      });
+    }
+  }
+
+  await loadSessions();
+}
+
+function openRescheduleModal(sessionId) {
+  selectedSession = sessions.find((s) => s.id === sessionId);
+  if (!selectedSession) return;
+
+  document.querySelector("#newSessionDate").value = selectedSession.dateISO;
+  document.querySelector("#newSessionTime").value = selectedSession.startTime || "07:00";
+  document.querySelector("#rescheduleModal").classList.remove("hidden");
+}
+
+function closeRescheduleModal() {
+  selectedSession = null;
+  document.querySelector("#rescheduleModal").classList.add("hidden");
+}
+
+async function saveReschedule() {
+  if (!selectedSession) return;
+
+  const newDate = document.querySelector("#newSessionDate").value;
+  const newTime = document.querySelector("#newSessionTime").value;
+
+  if (!newDate || !newTime) {
+    alert("Selecciona fecha y hora.");
+    return;
+  }
+
+  const startDateTime = new Date(`${newDate}T${newTime}:00`);
+
+  await updateDoc(doc(db, "sessions", selectedSession.id), {
+    dateISO: newDate,
+    startTime: newTime,
+    startAt: Timestamp.fromDate(startDateTime),
+    status: SESSION_STATUS.SCHEDULED,
+    rescheduledFrom: selectedSession.dateISO,
+    updatedAt: serverTimestamp()
+  });
+
+  closeRescheduleModal();
+  await loadSessions();
+}
