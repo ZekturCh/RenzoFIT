@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Nuevo estudiante | Coach Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Nuevo estudiante</h1>
+        <p>Registra datos, pack, horario y pago.</p>
+      </div>
+    </header>
+
+    <form id="studentForm" class="form-layout">
+
+      <section class="form-panel">
+        <h2>Datos del estudiante</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombres</label>
+            <input id="firstName" type="text" required />
+          </div>
+
+          <div class="form-group">
+            <label>Apellidos</label>
+            <input id="lastName" type="text" />
+          </div>
+
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input id="phone" type="tel" required />
+          </div>
+
+          <div class="form-group">
+            <label>Objetivo</label>
+            <select id="objective">
+              <option value="Bajar grasa">Bajar grasa</option>
+              <option value="Ganar músculo">Ganar músculo</option>
+              <option value="Rendimiento">Rendimiento</option>
+              <option value="Salud">Salud</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Observaciones</label>
+          <textarea id="notes" rows="3" placeholder="Lesiones, limitaciones, preferencias, etc."></textarea>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <h2>Pack y horario</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pack de sesiones</label>
+            <select id="totalSessions">
+              <option value="12">12 sesiones</option>
+              <option value="16">16 sesiones</option>
+              <option value="20">20 sesiones</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha de inicio</label>
+            <input id="startDate" type="date" required />
+          </div>
+
+          <div class="form-group">
+            <label>Hora fija</label>
+            <input id="defaultTime" type="time" value="07:00" required />
+          </div>
+
+          <div class="form-group">
+            <label>Duración</label>
+            <select id="duration">
+              <option value="60">1 hora</option>
+              <option value="45">45 min</option>
+              <option value="90">1h 30min</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="days-box">
+          <label><input type="checkbox" name="trainingDay" value="monday" /> Lunes</label>
+          <label><input type="checkbox" name="trainingDay" value="tuesday" /> Martes</label>
+          <label><input type="checkbox" name="trainingDay" value="wednesday" /> Miércoles</label>
+          <label><input type="checkbox" name="trainingDay" value="thursday" /> Jueves</label>
+          <label><input type="checkbox" name="trainingDay" value="friday" /> Viernes</label>
+          <label><input type="checkbox" name="trainingDay" value="saturday" /> Sábado</label>
+          <label><input type="checkbox" name="trainingDay" value="sunday" /> Domingo</label>
+        </div>
+
+        <div class="quick-days">
+          <button type="button" class="btn-secondary" data-days="monday,wednesday,friday">L-M-V</button>
+          <button type="button" class="btn-secondary" data-days="tuesday,thursday,saturday">M-J-S</button>
+        </div>
+      </section>
+
+      <section class="form-panel">
+        <h2>Pago</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Monto total</label>
+            <input id="totalAmount" type="number" min="0" step="0.01" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Monto pagado</label>
+            <input id="paidAmount" type="number" min="0" step="0.01" value="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Método</label>
+            <select id="paymentMethod">
+              <option value="efectivo">Efectivo</option>
+              <option value="yape">Yape</option>
+              <option value="plin">Plin</option>
+              <option value="transferencia">Transferencia</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="actions-bar">
+        <button class="btn-primary" type="submit">Guardar y generar agenda</button>
+      </section>
+    </form>
+  </main>
+
+  <script type="module" src="./assets/js/pages/nuevo-estudiante.js"></script>
+</body>
+</html>
