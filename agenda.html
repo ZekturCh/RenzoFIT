@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Agenda | Coach Admin</title>
+
+  <link rel="stylesheet" href="./assets/css/base.css" />
+  <link rel="stylesheet" href="./assets/css/layout.css" />
+  <link rel="stylesheet" href="./assets/css/components.css" />
+</head>
+<body>
+
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <h1>Agenda</h1>
+        <p>Marca asistencia, falta o reprograma sesiones.</p>
+      </div>
+    </header>
+
+    <section class="filters-bar">
+      <input id="agendaDate" type="date" />
+      <button id="todayBtn" class="btn-secondary">Hoy</button>
+    </section>
+
+    <section id="sessionsList" class="cards-list">
+      <p class="empty-message">Cargando sesiones...</p>
+    </section>
+  </main>
+
+  <div id="rescheduleModal" class="modal hidden">
+    <div class="modal-content">
+      <button id="closeRescheduleModal" class="modal-close">×</button>
+
+      <h2>Reprogramar sesión</h2>
+
+      <div class="form-group">
+        <label>Nueva fecha</label>
+        <input id="newSessionDate" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>Nueva hora</label>
+        <input id="newSessionTime" type="time" />
+      </div>
+
+      <button id="saveRescheduleBtn" class="btn-primary">Guardar cambio</button>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/pages/agenda.js"></script>
+</body>
+</html>
