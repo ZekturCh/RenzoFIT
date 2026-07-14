@@ -8,7 +8,10 @@ export function renderSidebar(profile) {
 
   sidebar.innerHTML = `
     <div class="sidebar-brand">
-      <div class="brand-mark">FIT</div>
+      <div class="brand-mark logo-brand">
+        <img src="./assets/img/logo-renzofit.png" alt="RenzoFIT" />
+      </div>
+
       <div>
         <strong>Coach Admin</strong>
         <span>${profile.name || "Coach"}</span>
