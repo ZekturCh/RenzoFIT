@@ -210,8 +210,38 @@
         <p class="empty-message">Cargando historial...</p>
       </div>
     </section>
-  </main>
 
+    <section class="danger-zone">
+      <h2>ZONA DE RIESGO</h2>
+      <p>
+        Eliminar este estudiante borrará también sus sesiones y pagos registrados.
+        Esta acción no se puede deshacer.
+      </p>
+    
+      <button id="openDeleteStudentModalBtn" class="btn-danger" type="button">
+        Eliminar estudiante
+      </button>
+    </section>
+  </main>
+  <div id="deleteStudentModal" class="modal hidden">
+  <div class="modal-content delete-modal-content">
+    <button id="closeDeleteStudentModalBtn" class="modal-close">×</button>
+
+    <h2>Eliminar estudiante</h2>
+
+    <p id="deleteStudentText">
+      ¿Estás seguro que deseas ELIMINAR a este estudiante?
+    </p>
+
+    <p class="delete-warning">
+      Se borrarán sus sesiones, pagos y registro principal.
+    </p>
+
+    <button id="confirmDeleteStudentBtn" class="btn-danger delete-countdown-btn" type="button" disabled>
+      ELIMINAR REGISTRO
+    </button>
+  </div>
+</div>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
