@@ -606,3 +606,44 @@ button:disabled {
 .flatpickr-input[readonly] {
   cursor: pointer;
 }
+
+/* Zona peligrosa */
+
+.danger-zone {
+  border: 1px solid var(--danger);
+  background: rgba(255, 23, 68, 0.08);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 24px;
+  box-shadow: var(--shadow);
+}
+
+.danger-zone h2 {
+  color: var(--danger);
+}
+
+.danger-zone p {
+  color: var(--muted);
+}
+
+.delete-modal-content {
+  border-color: var(--danger);
+}
+
+.delete-warning {
+  color: var(--danger);
+  font-weight: 900;
+}
+
+.delete-countdown-btn {
+  width: 100%;
+  margin-top: 16px;
+  opacity: 0.45;
+}
+
+.delete-countdown-btn.ready {
+  opacity: 1;
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 0 24px rgba(255, 23, 68, 0.35);
+}
