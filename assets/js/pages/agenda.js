@@ -33,16 +33,20 @@ if (session) {
 
 function initAgenda() {
   const agendaDate = document.querySelector("#agendaDate");
+
   agendaDate.value = selectedDate;
+  updateDateLabel();
 
   agendaDate.addEventListener("change", async () => {
     selectedDate = agendaDate.value;
+    updateDateLabel();
     await loadSessions();
   });
 
   document.querySelector("#todayBtn").addEventListener("click", async () => {
     selectedDate = getTodayISO();
     agendaDate.value = selectedDate;
+    updateDateLabel();
     await loadSessions();
   });
 
@@ -51,18 +55,35 @@ function initAgenda() {
 }
 
 async function loadSessions() {
-  const q = query(
-    collection(db, "sessions"),
-    where("dateISO", "==", selectedDate)
-  );
+  const container = document.querySelector("#sessionsList");
 
-  const snapshot = await getDocs(q);
+  try {
+    container.innerHTML = `<p class="empty-message">Cargando sesiones...</p>`;
 
-  sessions = snapshot.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }))
-    .sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
+    const q = query(
+      collection(db, "sessions"),
+      where("dateISO", "==", selectedDate)
+    );
 
-  renderSessions();
+    const snapshot = await getDocs(q);
+
+    sessions = snapshot.docs
+      .map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      }))
+      .sort((a, b) => (a.startTime || "").localeCompare(b.startTime || ""));
+
+    renderSessions();
+  } catch (error) {
+    console.error(error);
+
+    container.innerHTML = `
+      <p class="empty-message">
+        No se pudo cargar la agenda. Revisa las reglas de Firestore.
+      </p>
+    `;
+  }
 }
 
 function renderSessions() {
@@ -77,24 +98,38 @@ function renderSessions() {
     <article class="session-card ${s.status}">
       <div class="card-main">
         <div>
-          <strong>${s.startTime} · ${s.studentName}</strong>
+          <strong>${s.startTime || "--:--"} · ${s.studentName || "Sin nombre"}</strong>
           <p>Sesión ${s.sessionNumber || "-"}</p>
           <p>Estado: ${getSessionLabel(s.status)}</p>
         </div>
 
-        <span class="badge">${getSessionLabel(s.status)}</span>
+        <span class="badge ${getStatusBadgeClass(s.status)}">
+          ${getSessionLabel(s.status)}
+        </span>
       </div>
 
       <div class="action-grid">
-        <button class="btn-success attend-btn" data-id="${s.id}" ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}>
+        <button 
+          class="btn-success attend-btn" 
+          data-id="${s.id}" 
+          ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}
+        >
           Asistió
         </button>
 
-        <button class="btn-secondary postpone-btn" data-id="${s.id}" ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}>
+        <button 
+          class="btn-secondary postpone-btn" 
+          data-id="${s.id}" 
+          ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}
+        >
           Postergar
         </button>
 
-        <button class="btn-danger missed-btn" data-id="${s.id}" ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}>
+        <button 
+          class="btn-danger missed-btn" 
+          data-id="${s.id}" 
+          ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}
+        >
           Falta
         </button>
       </div>
@@ -121,43 +156,14 @@ async function markAttended(sessionId) {
   const confirmAction = confirm("¿Marcar como asistió y descontar 1 sesión?");
   if (!confirmAction) return;
 
-  await updateDoc(doc(db, "sessions", sessionId), {
-    status: SESSION_STATUS.ATTENDED,
-    countsAsUsed: true,
-    attendedAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  });
-
-  const studentRef = doc(db, "students", current.studentId);
-  const studentSnap = await getDoc(studentRef);
-
-  if (studentSnap.exists()) {
-    const student = studentSnap.data();
-    const remaining = Math.max(Number(student.remainingSessions || 0) - 1, 0);
-
-    await updateDoc(studentRef, {
-      usedSessions: increment(1),
-      remainingSessions: remaining,
+  try {
+    await updateDoc(doc(db, "sessions", sessionId), {
+      status: SESSION_STATUS.ATTENDED,
+      countsAsUsed: true,
+      attendedAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
-  }
 
-  await loadSessions();
-}
-
-async function markMissed(sessionId) {
-  const current = sessions.find((s) => s.id === sessionId);
-  if (!current) return;
-
-  const shouldDiscount = confirm("¿La falta descuenta sesión? Aceptar = sí, Cancelar = no.");
-
-  await updateDoc(doc(db, "sessions", sessionId), {
-    status: SESSION_STATUS.MISSED,
-    countsAsUsed: shouldDiscount,
-    updatedAt: serverTimestamp()
-  });
-
-  if (shouldDiscount) {
     const studentRef = doc(db, "students", current.studentId);
     const studentSnap = await getDoc(studentRef);
 
@@ -171,9 +177,48 @@ async function markMissed(sessionId) {
         updatedAt: serverTimestamp()
       });
     }
-  }
 
-  await loadSessions();
+    await loadSessions();
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo marcar asistencia.");
+  }
+}
+
+async function markMissed(sessionId) {
+  const current = sessions.find((s) => s.id === sessionId);
+  if (!current) return;
+
+  const shouldDiscount = confirm("¿La falta descuenta sesión? Aceptar = sí, Cancelar = no.");
+
+  try {
+    await updateDoc(doc(db, "sessions", sessionId), {
+      status: SESSION_STATUS.MISSED,
+      countsAsUsed: shouldDiscount,
+      updatedAt: serverTimestamp()
+    });
+
+    if (shouldDiscount) {
+      const studentRef = doc(db, "students", current.studentId);
+      const studentSnap = await getDoc(studentRef);
+
+      if (studentSnap.exists()) {
+        const student = studentSnap.data();
+        const remaining = Math.max(Number(student.remainingSessions || 0) - 1, 0);
+
+        await updateDoc(studentRef, {
+          usedSessions: increment(1),
+          remainingSessions: remaining,
+          updatedAt: serverTimestamp()
+        });
+      }
+    }
+
+    await loadSessions();
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo marcar la falta.");
+  }
 }
 
 function openRescheduleModal(sessionId) {
@@ -201,17 +246,52 @@ async function saveReschedule() {
     return;
   }
 
-  const startDateTime = new Date(`${newDate}T${newTime}:00`);
+  try {
+    const startDateTime = new Date(`${newDate}T${newTime}:00`);
+    const endDateTime = new Date(startDateTime);
 
-  await updateDoc(doc(db, "sessions", selectedSession.id), {
-    dateISO: newDate,
-    startTime: newTime,
-    startAt: Timestamp.fromDate(startDateTime),
-    status: SESSION_STATUS.SCHEDULED,
-    rescheduledFrom: selectedSession.dateISO,
-    updatedAt: serverTimestamp()
-  });
+    endDateTime.setMinutes(
+      endDateTime.getMinutes() + Number(selectedSession.durationMinutes || 60)
+    );
 
-  closeRescheduleModal();
-  await loadSessions();
+    await updateDoc(doc(db, "sessions", selectedSession.id), {
+      dateISO: newDate,
+      startTime: newTime,
+      startAt: Timestamp.fromDate(startDateTime),
+      endAt: Timestamp.fromDate(endDateTime),
+      status: SESSION_STATUS.SCHEDULED,
+      rescheduledFrom: selectedSession.dateISO,
+      updatedAt: serverTimestamp()
+    });
+
+    closeRescheduleModal();
+    await loadSessions();
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo reprogramar la sesión.");
+  }
+}
+
+function updateDateLabel() {
+  const label = document.querySelector("#agendaDateLabel");
+  if (!label || !selectedDate) return;
+
+  const [year, month, day] = selectedDate.split("-");
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+
+  label.textContent = new Intl.DateTimeFormat("es-PE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  }).format(date);
+}
+
+function getStatusBadgeClass(status) {
+  if (status === SESSION_STATUS.ATTENDED) return "badge-green";
+  if (status === SESSION_STATUS.MISSED) return "badge-red";
+  if (status === SESSION_STATUS.POSTPONED) return "badge-yellow";
+  if (status === SESSION_STATUS.CANCELLED) return "badge-red";
+
+  return "";
 }
