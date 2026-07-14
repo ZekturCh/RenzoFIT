@@ -80,6 +80,24 @@
           </div>
 
           <div class="form-group">
+            <label>
+              <input type="checkbox" id="alreadyStarted" />
+              Este estudiante ya empezó clases
+            </label>
+          </div>
+          
+          <div id="startedFields" class="form-grid hidden">
+            <div class="form-group">
+              <label>Sesiones ya usadas</label>
+              <input id="usedSessionsInitial" type="number" min="0" value="0" />
+            </div>
+          
+            <div class="form-group">
+              <label>Generar agenda desde</label>
+              <input id="continueFromDate" type="date" />
+            </div>
+          </div>
+          <div class="form-group">
             <label>Hora fija</label>
             <input id="defaultTime" type="time" value="07:00" required />
           </div>
