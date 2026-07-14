@@ -8,9 +8,7 @@ import { formatShortDate, getTodayISO, getSessionLabel } from "../utils.js";
 
 import {
   collection,
-  getDocs,
-  query,
-  where
+  getDocs
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const session = await requireAdmin();
@@ -24,55 +22,121 @@ async function loadDashboard() {
   const studentsSnap = await getDocs(collection(db, "students"));
   const sessionsSnap = await getDocs(collection(db, "sessions"));
 
-  const students = studentsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-  const sessions = sessionsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const students = studentsSnap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
+
+  const sessions = sessionsSnap.docs.map((docSnap) => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
 
   const todayISO = getTodayISO();
 
   document.querySelector("#activeStudents").textContent =
-    students.filter((s) => s.status === STUDENT_STATUS.ACTIVE).length;
+    students.filter((student) => student.status === STUDENT_STATUS.ACTIVE).length;
 
   document.querySelector("#todaySessions").textContent =
-    sessions.filter((s) => s.dateISO === todayISO && s.status === SESSION_STATUS.SCHEDULED).length;
+    sessions.filter((session) =>
+      session.dateISO === todayISO &&
+      session.status === SESSION_STATUS.SCHEDULED
+    ).length;
 
   document.querySelector("#pendingPayments").textContent =
-    students.filter((s) => s.paymentStatus === "pending" || s.paymentStatus === "partial").length;
+    students.filter((student) =>
+      student.paymentStatus === "pending" ||
+      student.paymentStatus === "partial"
+    ).length;
 
   document.querySelector("#lowSessions").textContent =
-    students.filter((s) => Number(s.remainingSessions || 0) <= 2 && s.status === STUDENT_STATUS.ACTIVE).length;
+    students.filter((student) =>
+      Number(student.remainingSessions || 0) <= 2 &&
+      student.status === STUDENT_STATUS.ACTIVE
+    ).length;
 
-  renderNextSessions(sessions);
+  renderDashboardSessions(sessions);
 }
 
-function renderNextSessions(sessions) {
+function renderDashboardSessions(sessions) {
   const container = document.querySelector("#nextSessionsList");
-  const now = new Date();
+  const todayISO = getTodayISO();
 
-  const upcoming = sessions
-    .filter((s) => s.status === SESSION_STATUS.SCHEDULED)
+  const scheduledSessions = sessions
+    .filter((session) => session.status === SESSION_STATUS.SCHEDULED)
     .sort((a, b) => {
       const dateA = a.startAt?.toDate ? a.startAt.toDate().getTime() : 0;
       const dateB = b.startAt?.toDate ? b.startAt.toDate().getTime() : 0;
       return dateA - dateB;
-    })
-    .filter((s) => {
-      const date = s.startAt?.toDate ? s.startAt.toDate() : null;
-      return date && date >= now;
-    })
-    .slice(0, 8);
+    });
 
-  if (upcoming.length === 0) {
+  const todaySessions = scheduledSessions.filter((session) => {
+    return session.dateISO === todayISO;
+  });
+
+  const futureSessions = scheduledSessions
+    .filter((session) => {
+      return session.dateISO > todayISO;
+    })
+    .slice(0, 5);
+
+  if (todaySessions.length === 0 && futureSessions.length === 0) {
     container.innerHTML = `<p class="empty-message">No hay sesiones próximas.</p>`;
     return;
   }
 
-  container.innerHTML = upcoming.map((s) => `
-    <article class="session-card">
-      <div>
-        <strong>${s.studentName}</strong>
-        <p>${formatShortDate(s.startAt)} · ${s.startTime}</p>
+  let html = "";
+
+  html += `
+    <div class="dashboard-session-group">
+      <h3>Sesiones de hoy</h3>
+  `;
+
+  if (todaySessions.length === 0) {
+    html += `<p class="empty-message">No hay sesiones para hoy.</p>`;
+  } else {
+    html += todaySessions.map((session) => renderSessionCard(session, true)).join("");
+  }
+
+  html += `</div>`;
+
+  html += `
+    <div class="dashboard-session-group">
+      <h3>Próximas 5 sesiones</h3>
+  `;
+
+  if (futureSessions.length === 0) {
+    html += `<p class="empty-message">No hay próximas sesiones registradas.</p>`;
+  } else {
+    html += futureSessions.map((session) => renderSessionCard(session, false)).join("");
+  }
+
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+function renderSessionCard(session, isToday) {
+  return `
+    <article class="session-card dashboard-session-card">
+      <div class="card-main">
+        <div>
+          <strong>${session.studentName || "Sin nombre"}</strong>
+          <p>
+            ${isToday ? "Hoy" : formatShortDate(session.startAt)}
+            · ${session.startTime || "--:--"}
+          </p>
+          <p>Sesión ${session.sessionNumber || "-"}</p>
+        </div>
+
+        <span class="badge">
+          ${getSessionLabel(session.status)}
+        </span>
       </div>
-      <span class="badge">${getSessionLabel(s.status)}</span>
+
+      <a class="btn-secondary mini-link" href="./agenda.html">
+        Ir a agenda
+      </a>
     </article>
-  `).join("");
+  `;
 }
