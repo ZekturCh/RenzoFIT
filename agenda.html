@@ -23,9 +23,13 @@
     </header>
 
     <section class="filters-bar">
-      <input id="agendaDate" type="date" />
+      <div class="date-filter-box">
+        <input id="agendaDate" type="date" />
+        <p id="agendaDateLabel" class="date-label"></p>
+      </div>
+    
       <button id="todayBtn" class="btn-secondary">Hoy</button>
-    </section>
+</section>
 
     <section id="sessionsList" class="cards-list">
       <p class="empty-message">Cargando sesiones...</p>
