@@ -23,6 +23,7 @@ import {
   doc,
   query,
   where,
+  writeBatch,
   serverTimestamp,
   Timestamp
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
@@ -36,6 +37,8 @@ let student = null;
 let studentSessions = [];
 let pendingSessions = [];
 let selectedDates = [];
+let deleteCountdownInterval = null;
+let deleteCountdownValue = 3;
 let calendarDate = new Date();
 
 if (session) {
@@ -61,6 +64,17 @@ function setupEvents() {
   document.querySelector("#nextMonthBtn").addEventListener("click", () => changeMonth(1));
   document.querySelector("#saveCalendarBtn").addEventListener("click", saveEditableCalendar);
   document.querySelector("#addPackBtn").addEventListener("click", addNewPack);
+  document
+  .querySelector("#openDeleteStudentModalBtn")
+  .addEventListener("click", openDeleteStudentModal);
+
+document
+  .querySelector("#closeDeleteStudentModalBtn")
+  .addEventListener("click", closeDeleteStudentModal);
+
+document
+  .querySelector("#confirmDeleteStudentBtn")
+  .addEventListener("click", deleteStudentRecord);
 
   document.querySelectorAll(".new-pack-quick").forEach((button) => {
     button.addEventListener("click", () => {
@@ -527,4 +541,97 @@ function getSessionBadgeClass(status) {
 function capitalize(value) {
   if (!value) return "";
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+function openDeleteStudentModal() {
+  const modal = document.querySelector("#deleteStudentModal");
+  const text = document.querySelector("#deleteStudentText");
+  const button = document.querySelector("#confirmDeleteStudentBtn");
+
+  deleteCountdownValue = 3;
+
+  text.innerHTML = `
+    ¿Estás seguro que deseas <strong>ELIMINAR</strong> a 
+    <strong>${student?.fullName || "este estudiante"}</strong>?
+  `;
+
+  button.disabled = true;
+  button.classList.remove("ready");
+  button.textContent = `ELIMINAR REGISTRO EN ${deleteCountdownValue}`;
+
+  modal.classList.remove("hidden");
+
+  clearInterval(deleteCountdownInterval);
+
+  deleteCountdownInterval = setInterval(() => {
+    deleteCountdownValue--;
+
+    if (deleteCountdownValue > 0) {
+      button.textContent = `ELIMINAR REGISTRO EN ${deleteCountdownValue}`;
+      return;
+    }
+
+    clearInterval(deleteCountdownInterval);
+    button.disabled = false;
+    button.classList.add("ready");
+    button.textContent = "ELIMINAR REGISTRO";
+  }, 1000);
+}
+
+function closeDeleteStudentModal() {
+  clearInterval(deleteCountdownInterval);
+
+  const modal = document.querySelector("#deleteStudentModal");
+  const button = document.querySelector("#confirmDeleteStudentBtn");
+
+  button.disabled = true;
+  button.classList.remove("ready");
+  button.textContent = "ELIMINAR REGISTRO";
+
+  modal.classList.add("hidden");
+}
+
+async function deleteStudentRecord() {
+  if (!studentId || !student) return;
+
+  const confirmDelete = confirm(
+    `Última confirmación: ¿eliminar definitivamente a ${student.fullName || "este estudiante"}?`
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const batch = writeBatch(db);
+
+    const sessionsQuery = query(
+      collection(db, "sessions"),
+      where("studentId", "==", studentId)
+    );
+
+    const sessionsSnapshot = await getDocs(sessionsQuery);
+
+    sessionsSnapshot.forEach((sessionDoc) => {
+      batch.delete(doc(db, "sessions", sessionDoc.id));
+    });
+
+    const paymentsQuery = query(
+      collection(db, "payments"),
+      where("studentId", "==", studentId)
+    );
+
+    const paymentsSnapshot = await getDocs(paymentsQuery);
+
+    paymentsSnapshot.forEach((paymentDoc) => {
+      batch.delete(doc(db, "payments", paymentDoc.id));
+    });
+
+    batch.delete(doc(db, "students", studentId));
+
+    await batch.commit();
+
+    alert("Estudiante eliminado correctamente.");
+    window.location.href = "./estudiantes.html";
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo eliminar el estudiante.");
+  }
 }
