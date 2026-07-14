@@ -144,11 +144,10 @@ async function saveStudent(event) {
     return;
   }
 
-  if (selectedDays.length > 4) {
-    alert("Máximo 4 días por semana.");
-    return;
-  }
-
+  if (selectedDays.length > 5) {
+  alert("Máximo 5 días por semana.");
+  return;
+}
   const firstName = document.querySelector("#firstName").value.trim();
   const lastName = document.querySelector("#lastName").value.trim();
   const phone = document.querySelector("#phone").value.trim();
