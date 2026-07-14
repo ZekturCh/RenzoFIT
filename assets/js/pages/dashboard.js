@@ -3,16 +3,14 @@
 import { db } from "../firebase-config.js";
 import { requireAdmin } from "../guards.js";
 import { renderSidebar } from "../layout.js";
-import { ORDER_STATUS } from "../constants.js";
-import { formatDate, formatCurrency } from "../utils.js";
+import { STUDENT_STATUS, SESSION_STATUS } from "../constants.js";
+import { formatShortDate, getTodayISO, getSessionLabel } from "../utils.js";
 
 import {
   collection,
   getDocs,
   query,
-  where,
-  orderBy,
-  limit
+  where
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const session = await requireAdmin();
@@ -23,118 +21,58 @@ if (session) {
 }
 
 async function loadDashboard() {
-  await Promise.all([
-    loadTotalClients(),
-    loadLowStock(),
-    loadOldestService(),
-    loadPendingServices()
-  ]);
+  const studentsSnap = await getDocs(collection(db, "students"));
+  const sessionsSnap = await getDocs(collection(db, "sessions"));
 
-  document.querySelector("#topProduct").textContent = "Pendiente";
+  const students = studentsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const sessions = sessionsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  const todayISO = getTodayISO();
+
+  document.querySelector("#activeStudents").textContent =
+    students.filter((s) => s.status === STUDENT_STATUS.ACTIVE).length;
+
+  document.querySelector("#todaySessions").textContent =
+    sessions.filter((s) => s.dateISO === todayISO && s.status === SESSION_STATUS.SCHEDULED).length;
+
+  document.querySelector("#pendingPayments").textContent =
+    students.filter((s) => s.paymentStatus === "pending" || s.paymentStatus === "partial").length;
+
+  document.querySelector("#lowSessions").textContent =
+    students.filter((s) => Number(s.remainingSessions || 0) <= 2 && s.status === STUDENT_STATUS.ACTIVE).length;
+
+  renderNextSessions(sessions);
 }
 
-async function loadTotalClients() {
-  const snapshot = await getDocs(collection(db, "clients"));
-  document.querySelector("#totalClients").textContent = snapshot.size;
-}
+function renderNextSessions(sessions) {
+  const container = document.querySelector("#nextSessionsList");
+  const now = new Date();
 
-async function loadLowStock() {
-  const q = query(
-    collection(db, "inventory"),
-    where("approved", "==", true),
-    orderBy("stock", "asc"),
-    limit(1)
-  );
+  const upcoming = sessions
+    .filter((s) => s.status === SESSION_STATUS.SCHEDULED)
+    .sort((a, b) => {
+      const dateA = a.startAt?.toDate ? a.startAt.toDate().getTime() : 0;
+      const dateB = b.startAt?.toDate ? b.startAt.toDate().getTime() : 0;
+      return dateA - dateB;
+    })
+    .filter((s) => {
+      const date = s.startAt?.toDate ? s.startAt.toDate() : null;
+      return date && date >= now;
+    })
+    .slice(0, 8);
 
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    document.querySelector("#lowStock").textContent = "-";
+  if (upcoming.length === 0) {
+    container.innerHTML = `<p class="empty-message">No hay sesiones próximas.</p>`;
     return;
   }
 
-  const product = snapshot.docs[0].data();
-  document.querySelector("#lowStock").textContent = `${product.name} (${product.stock})`;
-}
-
-async function loadOldestService() {
-  const q = query(
-    collection(db, "workOrders"),
-    where("status", "in", [
-      ORDER_STATUS.COTIZANDO,
-      ORDER_STATUS.DIAGNOSTICANDO,
-      ORDER_STATUS.LISTO_TRABAJAR
-    ]),
-    orderBy("createdAt", "asc"),
-    limit(1)
-  );
-
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    document.querySelector("#oldestService").textContent = "-";
-    return;
-  }
-
-  const order = snapshot.docs[0].data();
-  document.querySelector("#oldestService").textContent = `${order.code || snapshot.docs[0].id}`;
-}
-
-async function loadPendingServices() {
-  const container = document.querySelector("#pendingServicesList");
-
-  const q = query(
-    collection(db, "workOrders"),
-    where("status", "in", [
-      ORDER_STATUS.COTIZANDO,
-      ORDER_STATUS.DIAGNOSTICANDO,
-      ORDER_STATUS.LISTO_TRABAJAR,
-      ORDER_STATUS.POR_COBRAR,
-      ORDER_STATUS.POR_RECOGER
-    ]),
-    orderBy("createdAt", "asc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    container.innerHTML = `<p class="empty-message">No hay servicios pendientes.</p>`;
-    return;
-  }
-
-  container.innerHTML = snapshot.docs.map((docSnap) => {
-    const order = docSnap.data();
-
-    return `
-      <article class="service-card">
-        <div class="service-card-top">
-          <div>
-            <h3>Servicio <span class="service-code">${order.code || docSnap.id}</span></h3>
-            <p class="card-meta">Estado: ${getStatusLabel(order.status)}</p>
-            <p class="card-meta">Fecha: ${formatDate(order.createdAt)}</p>
-            <p class="card-meta">Técnico: ${order.assignedToName || order.assignedToEmail || "-"}</p>
-          </div>
-
-          <span class="status-badge status-red">${getStatusLabel(order.status)}</span>
-        </div>
-
-        <p>Total: <strong class="text-red">${formatCurrency(order.total || 0)}</strong></p>
-      </article>
-    `;
-  }).join("");
-}
-
-function getStatusLabel(status) {
-  const labels = {
-    cotizando: "Cotizando",
-    diagnosticando: "Diagnosticando",
-    listo_trabajar: "Listo para trabajar",
-    trabajo_terminado: "Trabajo terminado",
-    por_cobrar: "Por cobrar",
-    por_recoger: "Por recoger",
-    entregado: "Entregado",
-    no_va: "No va"
-  };
-
-  return labels[status] || status || "-";
+  container.innerHTML = upcoming.map((s) => `
+    <article class="session-card">
+      <div>
+        <strong>${s.studentName}</strong>
+        <p>${formatShortDate(s.startAt)} · ${s.startTime}</p>
+      </div>
+      <span class="badge">${getSessionLabel(s.status)}</span>
+    </article>
+  `).join("");
 }
