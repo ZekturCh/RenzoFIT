@@ -1,26 +1,41 @@
 // assets/js/constants.js
 
-export const ROLES = {
-  ADMIN: "admin",
-  BASIC: "basic"
+export const STUDENT_STATUS = {
+  ACTIVE: "active",
+  PAUSED: "paused",
+  FINISHED: "finished"
 };
 
-export const ORDER_STATUS = {
-  COTIZANDO: "cotizando",
-  DIAGNOSTICANDO: "diagnosticando",
-  LISTO_TRABAJAR: "listo_trabajar",
-  TRABAJO_TERMINADO: "trabajo_terminado",
-  POR_COBRAR: "por_cobrar",
-  POR_RECOGER: "por_recoger",
-  ENTREGADO: "entregado",
-  NO_VA: "no_va"
+export const SESSION_STATUS = {
+  SCHEDULED: "scheduled",
+  ATTENDED: "attended",
+  POSTPONED: "postponed",
+  MISSED: "missed",
+  CANCELLED: "cancelled"
 };
 
-export const PAYMENT_METHODS = {
-  EFECTIVO: "efectivo",
-  YAPE: "yape",
-  PLIN: "plin",
-  TRANSFERENCIA: "transferencia",
-  TARJETA: "tarjeta",
-  OTRO: "otro"
+export const PAYMENT_STATUS = {
+  PAID: "paid",
+  PARTIAL: "partial",
+  PENDING: "pending"
+};
+
+export const DAY_LABELS = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo"
+};
+
+export const DAY_NUMBERS = {
+  sunday: 0,
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6
 };
