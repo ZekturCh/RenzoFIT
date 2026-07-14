@@ -25,6 +25,10 @@ let selectedDate = getTodayISO();
 let sessions = [];
 let selectedSession = null;
 
+let agendaDatePicker = null;
+let rescheduleDatePicker = null;
+let rescheduleTimePicker = null;
+
 if (session) {
   renderSidebar(session.profile);
   initAgenda();
@@ -32,26 +36,61 @@ if (session) {
 }
 
 function initAgenda() {
-  const agendaDate = document.querySelector("#agendaDate");
-
-  agendaDate.value = selectedDate;
-  updateDateLabel();
-
-  agendaDate.addEventListener("change", async () => {
-    selectedDate = agendaDate.value;
-    updateDateLabel();
-    await loadSessions();
-  });
+  setupDatePickers();
 
   document.querySelector("#todayBtn").addEventListener("click", async () => {
     selectedDate = getTodayISO();
-    agendaDate.value = selectedDate;
+
+    if (agendaDatePicker) {
+      agendaDatePicker.setDate(selectedDate, true);
+    }
+
     updateDateLabel();
     await loadSessions();
   });
 
   document.querySelector("#closeRescheduleModal").addEventListener("click", closeRescheduleModal);
   document.querySelector("#saveRescheduleBtn").addEventListener("click", saveReschedule);
+
+  updateDateLabel();
+}
+
+function setupDatePickers() {
+  agendaDatePicker = flatpickr("#agendaDate", {
+    locale: "es",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    defaultDate: selectedDate,
+    allowInput: false,
+    disableMobile: true,
+    onChange: async function(selectedDates, dateStr) {
+      selectedDate = dateStr;
+      updateDateLabel();
+      await loadSessions();
+    }
+  });
+
+  rescheduleDatePicker = flatpickr("#newSessionDate", {
+    locale: "es",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    allowInput: false,
+    disableMobile: true
+  });
+
+  rescheduleTimePicker = flatpickr("#newSessionTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    altInput: true,
+    altFormat: "h:i K",
+    time_24hr: false,
+    minuteIncrement: 15,
+    allowInput: false,
+    disableMobile: true
+  });
 }
 
 async function loadSessions() {
@@ -109,25 +148,25 @@ function renderSessions() {
       </div>
 
       <div class="action-grid">
-        <button 
-          class="btn-success attend-btn" 
-          data-id="${s.id}" 
+        <button
+          class="btn-success attend-btn"
+          data-id="${s.id}"
           ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}
         >
           Asistió
         </button>
 
-        <button 
-          class="btn-secondary postpone-btn" 
-          data-id="${s.id}" 
+        <button
+          class="btn-secondary postpone-btn"
+          data-id="${s.id}"
           ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}
         >
           Postergar
         </button>
 
-        <button 
-          class="btn-danger missed-btn" 
-          data-id="${s.id}" 
+        <button
+          class="btn-danger missed-btn"
+          data-id="${s.id}"
           ${s.status !== SESSION_STATUS.SCHEDULED ? "disabled" : ""}
         >
           Falta
@@ -225,8 +264,21 @@ function openRescheduleModal(sessionId) {
   selectedSession = sessions.find((s) => s.id === sessionId);
   if (!selectedSession) return;
 
-  document.querySelector("#newSessionDate").value = selectedSession.dateISO;
-  document.querySelector("#newSessionTime").value = selectedSession.startTime || "07:00";
+  const originalDate = selectedSession.dateISO || selectedDate;
+  const originalTime = selectedSession.startTime || "07:00";
+
+  if (rescheduleDatePicker) {
+    rescheduleDatePicker.setDate(originalDate, true);
+  } else {
+    document.querySelector("#newSessionDate").value = originalDate;
+  }
+
+  if (rescheduleTimePicker) {
+    rescheduleTimePicker.setDate(originalTime, true);
+  } else {
+    document.querySelector("#newSessionTime").value = originalTime;
+  }
+
   document.querySelector("#rescheduleModal").classList.remove("hidden");
 }
 
