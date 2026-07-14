@@ -370,10 +370,10 @@ async function addNewPack() {
     return;
   }
 
-  if (selectedDays.length > 4) {
-    alert("Máximo 4 días por semana.");
-    return;
-  }
+  if (selectedDays.length > 5) {
+  alert("Máximo 5 días por semana.");
+  return;
+}
 
   const confirmAdd = confirm(`¿Agregar ${packSessions} sesiones al estudiante?`);
   if (!confirmAdd) return;
